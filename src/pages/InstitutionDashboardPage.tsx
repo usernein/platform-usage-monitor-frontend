@@ -1,6 +1,9 @@
-import { useEffect, useState } from "react"
+import { lazy, useEffect, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { AreaChart, BarChart } from "@mantine/charts"
+import { useMediaQuery } from "@mantine/hooks"
+import dayjs from "dayjs"
+import "dayjs/locale/pt-br"
 import {
     Anchor,
     Badge,
@@ -19,6 +22,7 @@ import {
     Activity,
     ArrowLeft,
     ArrowUpRight,
+    CalendarDays,
     CircleAlert,
     CircleCheck,
     CircleX,
@@ -32,21 +36,52 @@ import { getInstitutionDashboard, getInstitutions } from "../api/mockApi"
 import { MetricCard } from "../components/MetricCard"
 import { EmptyState, PageError, PageLoader } from "../components/PageState"
 import { ScoreRing } from "../components/ScoreRing"
-import type { DashboardPeriod } from "../types/domain"
 import { numberFormatter } from "../utils/usage"
 import classes from "./styles/DashboardPage.module.css"
 
-const periodOptions = [
-    { value: "7d", label: "Últimos 7 dias" },
-    { value: "30d", label: "Últimos 30 dias" },
-    { value: "90d", label: "Últimos 90 dias" },
+const DatePickerInput = lazy(() =>
+    import("@mantine/dates").then((module) => ({ default: module.DatePickerInput })),
+)
+
+type DateRange = [string | null, string | null]
+type CompleteDateRange = [string, string]
+
+const today = dayjs()
+const defaultDateRange: CompleteDateRange = [
+    today.subtract(29, "day").format("YYYY-MM-DD"),
+    today.format("YYYY-MM-DD"),
+]
+const datePresets: { value: CompleteDateRange; label: string }[] = [
+    {
+        value: [today.subtract(6, "day").format("YYYY-MM-DD"), today.format("YYYY-MM-DD")],
+        label: "Últimos 7 dias",
+    },
+    {
+        value: defaultDateRange,
+        label: "Últimos 30 dias",
+    },
+    {
+        value: [today.subtract(89, "day").format("YYYY-MM-DD"), today.format("YYYY-MM-DD")],
+        label: "Últimos 90 dias",
+    },
+    {
+        value: [today.subtract(6, "month").format("YYYY-MM-DD"), today.format("YYYY-MM-DD")],
+        label: "Últimos 6 meses",
+    },
+    {
+        value: [today.subtract(1, "year").format("YYYY-MM-DD"), today.format("YYYY-MM-DD")],
+        label: "Último ano",
+    },
 ]
 
 export function InstitutionDashboardPage() {
     const { institutionId = "" } = useParams()
     const navigate = useNavigate()
+    const smallScreen = useMediaQuery("(max-width: 48em)")
     const [applicationId, setApplicationId] = useState("all")
-    const [period, setPeriod] = useState<DashboardPeriod>("30d")
+    const [dateRange, setDateRange] = useState<DateRange>(defaultDateRange)
+    const [appliedDateRange, setAppliedDateRange] =
+        useState<CompleteDateRange>(defaultDateRange)
 
     const institutionsQuery = useQuery({
         queryKey: ["institutions"],
@@ -61,11 +96,28 @@ export function InstitutionDashboardPage() {
     }, [institutionId])
 
     const dashboardQuery = useQuery({
-        queryKey: ["institution-dashboard", institutionId, applicationId, period],
+        queryKey: [
+            "institution-dashboard",
+            institutionId,
+            applicationId,
+            appliedDateRange[0],
+            appliedDateRange[1],
+        ],
         queryFn: () =>
-            getInstitutionDashboard(institutionId, { applicationId, period }),
+            getInstitutionDashboard(institutionId, {
+                applicationId,
+                startDate: appliedDateRange[0],
+                endDate: appliedDateRange[1],
+            }),
         enabled: Boolean(institutionId),
     })
+
+    function handleDateRangeChange(value: DateRange) {
+        setDateRange(value)
+        if (value[0] && value[1]) {
+            setAppliedDateRange([value[0], value[1]])
+        }
+    }
 
     if (institutionsQuery.isPending || dashboardQuery.isPending) {
         return <PageLoader label="Montando o dashboard..." />
@@ -147,13 +199,29 @@ export function InstitutionDashboardPage() {
                         allowDeselect={false}
                         w={{ base: "100%", sm: 230 }}
                     />
-                    <Select
+                    <DatePickerInput
+                        type="range"
                         label="Período"
-                        data={periodOptions}
-                        value={period}
-                        onChange={(value) => setPeriod((value ?? "30d") as DashboardPeriod)}
-                        allowDeselect={false}
-                        w={{ base: "100%", sm: 190 }}
+                        placeholder="Selecione o período"
+                        value={dateRange}
+                        onChange={(value) => {
+                            if (Array.isArray(value)) {
+                                handleDateRangeChange([
+                                    typeof value[0] === "string" ? value[0] : null,
+                                    typeof value[1] === "string" ? value[1] : null,
+                                ])
+                            }
+                        }}
+                        presets={datePresets}
+                        locale="pt-br"
+                        valueFormat="DD MMM YYYY"
+                        leftSection={<CalendarDays size={17} />}
+                        leftSectionPointerEvents="none"
+                        maxDate={today.toDate()}
+                        minDate={today.subtract(1, "year").toDate()}
+                        numberOfColumns={smallScreen ? 1 : 2}
+                        dropdownType={smallScreen ? "modal" : "popover"}
+                        w={{ base: "100%", sm: 270 }}
                     />
                     <Button
                         component={Link}

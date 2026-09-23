@@ -129,6 +129,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@mantine/dates@npm:9.6.1":
+  version: 9.6.1
+  resolution: "@mantine/dates@npm:9.6.1"
+  dependencies:
+    clsx: "npm:^2.1.1"
+  peerDependencies:
+    "@mantine/core": 9.6.1
+    "@mantine/hooks": 9.6.1
+    dayjs: ">=1.0.0"
+    react: ^19.2.0
+    react-dom: ^19.2.0
+  checksum: 10c0/307ac9b91b3268083737054aced77f021835a40dfd1c8f105ed09ffbdc1cc8b0481f65a62fc64137f002d01df0b0a0bfb082f7b08656cb2da27cae1a348c09f6
+  languageName: node
+  linkType: hard
+
 "@mantine/hooks@npm:9.6.1":
   version: 9.6.1
   resolution: "@mantine/hooks@npm:9.6.1"
@@ -766,6 +781,13 @@ __metadata:
   version: 3.0.1
   resolution: "d3-timer@npm:3.0.1"
   checksum: 10c0/d4c63cb4bb5461d7038aac561b097cd1c5673969b27cbdd0e87fa48d9300a538b9e6f39b4a7f0e3592ef4f963d858c8a9f0e92754db73116770856f2fc04561a
+  languageName: node
+  linkType: hard
+
+"dayjs@npm:^1.11.23":
+  version: 1.11.23
+  resolution: "dayjs@npm:1.11.23"
+  checksum: 10c0/69ab04bf19c676e44ab50cc2fca223d265f3dafd107151ef3b0f3ad74d360c37caa602abe62f87cb25d90bd9f6bee003698af47df5b0dbf10a998b7b5f3bb3f1
   languageName: node
   linkType: hard
 
@@ -2109,12 +2131,14 @@ __metadata:
   dependencies:
     "@mantine/charts": "npm:9.6.1"
     "@mantine/core": "npm:9.6.1"
+    "@mantine/dates": "npm:9.6.1"
     "@mantine/hooks": "npm:9.6.1"
     "@tanstack/react-query": "npm:^5.103.2"
     "@types/react": "npm:^19.2.14"
     "@types/react-dom": "npm:^19.2.3"
     "@types/react-is": "npm:^19"
     "@vitejs/plugin-react": "npm:^6.0.1"
+    dayjs: "npm:^1.11.23"
     lucide-react: "npm:^1.47.0"
     postcss: "npm:^8.5.8"
     postcss-preset-mantine: "npm:1.18.0"

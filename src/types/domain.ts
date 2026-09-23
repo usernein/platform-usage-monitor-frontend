@@ -1,7 +1,6 @@
 export type UserProfile = "STUDENT" | "TEACHER"
 export type GoalFrequency = "DAILY" | "WEEKLY" | "MONTHLY"
 export type GoalStatus = "MET" | "AT_RISK" | "NOT_MET"
-export type DashboardPeriod = "7d" | "30d" | "90d"
 
 export interface Application {
     id: string
@@ -20,7 +19,8 @@ export interface Institution {
 
 export interface DashboardFilters {
     applicationId: string
-    period: DashboardPeriod
+    startDate: string
+    endDate: string
 }
 
 export interface DashboardSummary {
