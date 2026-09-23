@@ -56,7 +56,7 @@ export function InstitutionUsersPage() {
     })
     const usersQuery = useQuery({
         queryKey: ["institution-users", institutionId, applicationId],
-        queryFn: () => getInstitutionUsers(institutionId, applicationId),
+        queryFn: () => getInstitutionUsers(institutionId),
         enabled: Boolean(institutionId),
     })
 
@@ -316,7 +316,9 @@ export function InstitutionUsersPage() {
                                             <Table.Td>{goals.length}</Table.Td>
                                             <Table.Td>
                                                 <Text fw={600}>
-                                                    {summary.accessCount} / {summary.minimumAccesses}
+                                                    {summary.status === "NO_GOAL"
+                                                        ? "—"
+                                                        : `${summary.accessCount} / ${summary.minimumAccesses}`}
                                                 </Text>
                                             </Table.Td>
                                             <Table.Td>{formatDate(summary.lastAccessAt)}</Table.Td>

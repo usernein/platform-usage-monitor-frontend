@@ -6,6 +6,7 @@ export type AppBadgeTone =
     | "info"
     | "success"
     | "warning"
+    | "attention"
     | "danger"
     | "neutral"
     | "student"
@@ -24,6 +25,7 @@ const toneColors: Record<AppBadgeTone, string> = {
     info: "indigo",
     success: "teal",
     warning: "yellow",
+    attention: "orange",
     danger: "red",
     neutral: "gray",
     student: "indigo",

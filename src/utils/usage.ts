@@ -24,6 +24,7 @@ export function getScoreColor(score: number) {
 export function getStatusLabel(status: GoalStatus) {
     if (status === "MET") return "Meta atingida"
     if (status === "AT_RISK") return "Em risco"
+    if (status === "NO_GOAL") return "Sem meta"
     return "Meta não atingida"
 }
 
@@ -33,11 +34,14 @@ export function summarizeGoals(goals: UserGoalRelation[]) {
         (total, goal) => total + goal.minimumAccesses,
         0,
     )
-    const status: GoalStatus = goals.every(({ status }) => status === "MET")
-        ? "MET"
-        : goals.some(({ status }) => status === "AT_RISK")
-          ? "AT_RISK"
-          : "NOT_MET"
+    const status: GoalStatus =
+        goals.length === 0
+            ? "NO_GOAL"
+            : goals.every(({ status }) => status === "MET")
+              ? "MET"
+              : goals.some(({ status }) => status === "AT_RISK")
+                ? "AT_RISK"
+                : "NOT_MET"
     const lastAccessAt = goals
         .map(({ lastAccessAt }) => lastAccessAt)
         .filter((date): date is string => Boolean(date))

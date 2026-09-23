@@ -88,6 +88,19 @@ export async function getInstitutionDashboard(
         : institution.eligibleUsers
     const usersMeetingGoal = Math.round(eligibleUsers * (adherenceRate / 100))
     const usersNotMeetingGoal = eligibleUsers - usersMeetingGoal
+    const usersWithoutGoal = [...students, ...educators].filter((user) => {
+        const membership = user.memberships.find(
+            ({ institutionId: currentId }) => currentId === institutionId,
+        )
+        const applicableGoals =
+            filters.applicationId === "all"
+                ? (membership?.goals ?? [])
+                : (membership?.goals.filter(
+                      ({ applicationId }) => applicationId === filters.applicationId,
+                  ) ?? [])
+
+        return applicableGoals.length === 0
+    }).length
     const multiplier = periodMultiplier(filters)
     const baseAccesses = selectedApplication?.accesses ??
         allApplicationIndicators.reduce((total, item) => total + item.accesses, 0)
@@ -105,6 +118,7 @@ export async function getInstitutionDashboard(
                 (((institution.score % 9) - 2.5) * Math.min(multiplier, 2)).toFixed(1),
             ),
             usersAtRisk: Math.round(usersNotMeetingGoal * 0.34),
+            usersWithoutGoal,
             goalCoverage: Math.min(100, institution.score + 5),
         },
         evolution: periodLabels(filters).map((period, index, labels) => ({
@@ -129,45 +143,30 @@ export async function getInstitutionDashboard(
 
 export async function getInstitutionStudents(
     institutionId: string,
-    applicationId = "all",
 ): Promise<Student[]> {
     await wait()
     findInstitution(institutionId)
 
     return students.filter((student) =>
-        student.memberships.some(
-            (membership) =>
-                membership.institutionId === institutionId &&
-                (applicationId === "all" ||
-                    membership.goals.some((goal) => goal.applicationId === applicationId)),
-        ),
+        student.memberships.some((membership) => membership.institutionId === institutionId),
     )
 }
 
 export async function getInstitutionEducators(
     institutionId: string,
-    applicationId = "all",
 ): Promise<Student[]> {
     await wait()
     findInstitution(institutionId)
 
     return educators.filter((educator) =>
-        educator.memberships.some(
-            (membership) =>
-                membership.institutionId === institutionId &&
-                (applicationId === "all" ||
-                    membership.goals.some((goal) => goal.applicationId === applicationId)),
-        ),
+        educator.memberships.some((membership) => membership.institutionId === institutionId),
     )
 }
 
-export async function getInstitutionUsers(
-    institutionId: string,
-    applicationId = "all",
-): Promise<Student[]> {
+export async function getInstitutionUsers(institutionId: string): Promise<Student[]> {
     const [institutionStudents, institutionEducators] = await Promise.all([
-        getInstitutionStudents(institutionId, applicationId),
-        getInstitutionEducators(institutionId, applicationId),
+        getInstitutionStudents(institutionId),
+        getInstitutionEducators(institutionId),
     ])
     return [...institutionStudents, ...institutionEducators].sort((a, b) =>
         a.name.localeCompare(b.name, "pt-BR"),
@@ -200,4 +199,8 @@ export async function getInstitutionUsagePlans(
 
 export function getApplicationName(applicationId: string) {
     return applications.find(({ id }) => id === applicationId)?.name ?? applicationId
+}
+
+export function getApplicationColor(applicationId: string) {
+    return applications.find(({ id }) => id === applicationId)?.color ?? "gray"
 }

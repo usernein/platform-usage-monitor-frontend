@@ -17,7 +17,7 @@ export default function App({ children }: PropsWithChildren) {
                 <AppHeader />
             </AppShell.Header>
             <AppShell.Main>
-                <Suspense fallback={<div>Loading</div>}>{children}</Suspense>
+                <Suspense fallback={<div>Carregando...</div>}>{children}</Suspense>
             </AppShell.Main>
         </AppShell>
     )

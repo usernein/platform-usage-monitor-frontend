@@ -1,10 +1,11 @@
 export type UserProfile = "STUDENT" | "TEACHER" | "MANAGER"
 export type GoalFrequency = "DAILY" | "WEEKLY" | "MONTHLY"
-export type GoalStatus = "MET" | "AT_RISK" | "NOT_MET"
+export type GoalStatus = "MET" | "AT_RISK" | "NOT_MET" | "NO_GOAL"
 
 export interface Application {
     id: string
     name: string
+    color: string
 }
 
 export interface Institution {
@@ -31,6 +32,7 @@ export interface DashboardSummary {
     activeUserRate: number
     adherenceTrend: number
     usersAtRisk: number
+    usersWithoutGoal: number
     goalCoverage: number
 }
 
@@ -97,4 +99,12 @@ export interface Student {
     email: string
     profile: UserProfile
     memberships: StudentMembership[]
+    accessEvents: AccessEvent[]
+}
+
+export interface AccessEvent {
+    id: string
+    userId: string
+    applicationId: string
+    accessedAt: string
 }

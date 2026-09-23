@@ -13,6 +13,7 @@ export function GoalStatusBadge({ status, active, onClick }: GoalStatusBadgeProp
         MET: "success",
         AT_RISK: "warning",
         NOT_MET: "danger",
+        NO_GOAL: "attention",
     }
 
     return (

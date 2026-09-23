@@ -7,6 +7,7 @@ export const USER_STATUS_OPTIONS = [
     { value: "BELOW_GOAL", label: "Ainda não atingiram" },
     { value: "NOT_MET", label: "Meta não atingida" },
     { value: "AT_RISK", label: "Em risco" },
+    { value: "NO_GOAL", label: "Sem meta" },
     { value: "ACTIVE", label: "Usuários ativos" },
     { value: "INACTIVE", label: "Usuários inativos" },
 ]
@@ -16,6 +17,7 @@ const userStatuses: UserStatusFilter[] = [
     "BELOW_GOAL",
     "NOT_MET",
     "AT_RISK",
+    "NO_GOAL",
     "ACTIVE",
     "INACTIVE",
 ]
@@ -34,6 +36,6 @@ export function matchesUserStatus(
     if (!filter) return true
     if (filter === "ACTIVE") return accessCount > 0
     if (filter === "INACTIVE") return accessCount === 0
-    if (filter === "BELOW_GOAL") return status !== "MET"
+    if (filter === "BELOW_GOAL") return status === "NOT_MET" || status === "AT_RISK"
     return status === filter
 }

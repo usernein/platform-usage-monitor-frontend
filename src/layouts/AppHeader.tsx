@@ -5,16 +5,15 @@ import {
   Divider,
   Flex,
   Group,
-  Input,
   Popover,
   Stack,
   Text,
+  Title,
   UnstyledButton,
   useMantineColorScheme,
 } from "@mantine/core"
-import { LogOut, Moon, Search, Sun } from "lucide-react"
+import { LogOut, Moon, Sun } from "lucide-react"
 import { useNavigate } from "react-router-dom"
-import {Title} from "@mantine/core";
 
 export default function AppHeader() {
   const { colorScheme, toggleColorScheme } = useMantineColorScheme()

@@ -18,6 +18,7 @@ import { getApplicationName, getInstitutions, getUser } from "../api/mockApi"
 import { AppBadge } from "../components/AppBadge"
 import { GoalStatusBadge } from "../components/GoalStatusBadge"
 import { ProfileBadge } from "../components/ProfileBadge"
+import { UserAccessHistory } from "../components/UserAccessHistory"
 import { PageError, PageLoader } from "../components/PageState"
 import { formatDate } from "../utils/usage"
 import classes from "./styles/UserDetailPage.module.css"
@@ -136,6 +137,8 @@ export function UserDetailPage() {
                 </Group>
             </Paper>
 
+            <UserAccessHistory events={user.accessEvents} />
+
             <div>
                 <Title order={2} size="h3" mb={4}>
                     Instituições e metas aplicáveis
@@ -171,78 +174,95 @@ export function UserDetailPage() {
                                         </Text>
                                     </div>
                                 </Group>
-                                <AppBadge appearance="outline">
-                                    {membership.goals.length} metas aplicáveis
-                                </AppBadge>
+                                {membership.goals.length > 0 ? (
+                                    <AppBadge appearance="outline">
+                                        {membership.goals.length} metas aplicáveis
+                                    </AppBadge>
+                                ) : (
+                                    <GoalStatusBadge status="NO_GOAL" />
+                                )}
                             </Group>
 
                             <Divider mb="lg" />
 
-                            <SimpleGrid cols={{ base: 1, md: 2, xl: 3 }} spacing="md">
-                                {membership.goals.map((goal) => {
-                                    const progress = Math.min(
-                                        100,
-                                        Math.round(
-                                            (goal.accessCount / goal.minimumAccesses) * 100,
-                                        ),
-                                    )
+                            {membership.goals.length === 0 ? (
+                                <Paper
+                                    p="md"
+                                    radius="md"
+                                    bg="var(--mantine-color-orange-light)"
+                                >
+                                    <Text size="sm" c="orange.9">
+                                        Este usuário não possui uma meta aplicável nesta instituição.
+                                    </Text>
+                                </Paper>
+                            ) : (
+                                <SimpleGrid cols={{ base: 1, md: 2, xl: 3 }} spacing="md">
+                                    {membership.goals.map((goal) => {
+                                        const progress = Math.min(
+                                            100,
+                                            Math.round(
+                                                (goal.accessCount / goal.minimumAccesses) * 100,
+                                            ),
+                                        )
 
-                                    return (
-                                        <Paper
-                                            key={`${membership.institutionId}-${goal.applicationId}`}
-                                            withBorder
-                                            radius="md"
-                                            p="md"
-                                            className={classes.goalCard}
-                                        >
-                                            <Group justify="space-between" align="flex-start">
-                                                <div>
+                                        return (
+                                            <Paper
+                                                key={`${membership.institutionId}-${goal.applicationId}`}
+                                                withBorder
+                                                radius="md"
+                                                p="md"
+                                                className={classes.goalCard}
+                                            >
+                                                <Group justify="space-between" align="flex-start">
+                                                    <div>
+                                                        <Text fw={700}>
+                                                            {getApplicationName(goal.applicationId)}
+                                                        </Text>
+                                                        <Text size="xs" c="dimmed">
+                                                            Meta {frequencyLabels[goal.frequency]}
+                                                        </Text>
+                                                    </div>
+                                                    <GoalStatusBadge status={goal.status} />
+                                                </Group>
+
+                                                <Group justify="space-between" mt="lg" mb={6}>
+                                                    <Text size="sm">Acessos no período</Text>
                                                     <Text fw={700}>
-                                                        {getApplicationName(goal.applicationId)}
-                                                    </Text>
-                                                    <Text size="xs" c="dimmed">
-                                                        Meta {frequencyLabels[goal.frequency]}
-                                                    </Text>
-                                                </div>
-                                                <GoalStatusBadge status={goal.status} />
-                                            </Group>
-
-                                            <Group justify="space-between" mt="lg" mb={6}>
-                                                <Text size="sm">Acessos no período</Text>
-                                                <Text fw={700}>
-                                                    {goal.accessCount} / {goal.minimumAccesses}
-                                                </Text>
-                                            </Group>
-                                            <Progress
-                                                value={progress}
-                                                color={
-                                                    goal.status === "MET"
-                                                        ? "teal"
-                                                        : goal.status === "AT_RISK"
-                                                          ? "yellow"
-                                                          : "red"
-                                                }
-                                                radius="xl"
-                                            />
-
-                                            <Stack gap={6} mt="lg">
-                                                <Group gap={7} wrap="nowrap">
-                                                    <Target size={15} />
-                                                    <Text size="xs" c="dimmed">
-                                                        Elegibilidade: {goal.targetAudience}
+                                                        {goal.accessCount} / {goal.minimumAccesses}
                                                     </Text>
                                                 </Group>
-                                                <Group gap={7} wrap="nowrap">
-                                                    <CalendarDays size={15} />
-                                                    <Text size="xs" c="dimmed">
-                                                        Último acesso: {formatDate(goal.lastAccessAt)}
-                                                    </Text>
-                                                </Group>
-                                            </Stack>
-                                        </Paper>
-                                    )
-                                })}
-                            </SimpleGrid>
+                                                <Progress
+                                                    value={progress}
+                                                    color={
+                                                        goal.status === "MET"
+                                                            ? "teal"
+                                                            : goal.status === "AT_RISK"
+                                                              ? "yellow"
+                                                              : "red"
+                                                    }
+                                                    radius="xl"
+                                                />
+
+                                                <Stack gap={6} mt="lg">
+                                                    <Group gap={7} wrap="nowrap">
+                                                        <Target size={15} />
+                                                        <Text size="xs" c="dimmed">
+                                                            Elegibilidade: {goal.targetAudience}
+                                                        </Text>
+                                                    </Group>
+                                                    <Group gap={7} wrap="nowrap">
+                                                        <CalendarDays size={15} />
+                                                        <Text size="xs" c="dimmed">
+                                                            Último acesso:{" "}
+                                                            {formatDate(goal.lastAccessAt)}
+                                                        </Text>
+                                                    </Group>
+                                                </Stack>
+                                            </Paper>
+                                        )
+                                    })}
+                                </SimpleGrid>
+                            )}
                         </Paper>
                     )
                 })}

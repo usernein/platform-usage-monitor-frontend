@@ -153,6 +153,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@mantine/schedule@npm:9.6.1":
+  version: 9.6.1
+  resolution: "@mantine/schedule@npm:9.6.1"
+  dependencies:
+    rrule: "npm:^2.8.1"
+  peerDependencies:
+    "@mantine/core": 9.6.1
+    "@mantine/dates": 9.6.1
+    "@mantine/hooks": 9.6.1
+    react: ^19.2.0
+    react-dom: ^19.2.0
+  checksum: 10c0/f314bc7ad35c09e19395657aa32107584b35e0858f3ab8275c23781a83ce62fccc34ca18ca61ebd609b7cf8aa9d5fe65f94ee9074668160d39369291d4a1fc00
+  languageName: node
+  linkType: hard
+
 "@napi-rs/wasm-runtime@npm:^1.1.1":
   version: 1.1.1
   resolution: "@napi-rs/wasm-runtime@npm:1.1.1"
@@ -1802,6 +1817,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"rrule@npm:^2.8.1":
+  version: 2.8.1
+  resolution: "rrule@npm:2.8.1"
+  dependencies:
+    tslib: "npm:^2.4.0"
+  checksum: 10c0/c9350620bbd57d0cdf99320b576121a2d7ed579fda4ae50891e2779c7dfd6dc7b174b558b6598adefb1f0e053549dc977740e1a265f77dcf0827aaeea60b45e7
+  languageName: node
+  linkType: hard
+
 "safer-buffer@npm:>= 2.1.2 < 3.0.0":
   version: 2.1.2
   resolution: "safer-buffer@npm:2.1.2"
@@ -2133,6 +2157,7 @@ __metadata:
     "@mantine/core": "npm:9.6.1"
     "@mantine/dates": "npm:9.6.1"
     "@mantine/hooks": "npm:9.6.1"
+    "@mantine/schedule": "npm:9.6.1"
     "@tanstack/react-query": "npm:^5.103.2"
     "@types/react": "npm:^19.2.14"
     "@types/react-dom": "npm:^19.2.3"

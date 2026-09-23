@@ -12,7 +12,6 @@ import {
 import { ArrowRight, Building2, GraduationCap, Layers3, Target } from "lucide-react"
 import { Link } from "react-router-dom"
 import { getInstitutions } from "../api/mockApi"
-import { AppBadge } from "../components/AppBadge"
 import { EmptyState, PageError, PageLoader } from "../components/PageState"
 import { ScoreRing } from "../components/ScoreRing"
 import { numberFormatter } from "../utils/usage"
@@ -40,19 +39,6 @@ export function HomePage() {
     if (institutionsQuery.data.length === 0) {
         return <EmptyState message="Você ainda não possui acesso a nenhuma instituição." />
     }
-
-    const averageScore = Math.round(
-        institutionsQuery.data.reduce((total, institution) => total + institution.score, 0) /
-            institutionsQuery.data.length,
-    )
-    const portfolioGoalsMeeting = institutionsQuery.data.reduce(
-        (total, institution) => total + institution.goalsMeeting,
-        0,
-    )
-    const portfolioTotalGoals = institutionsQuery.data.reduce(
-        (total, institution) => total + institution.totalGoals,
-        0,
-    )
 
     return (
         <Stack gap="xl" className={classes.page}>

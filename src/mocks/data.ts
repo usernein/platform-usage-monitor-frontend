@@ -1,5 +1,6 @@
 import type {
     Application,
+    AccessEvent,
     GoalFrequency,
     GoalStatus,
     Institution,
@@ -9,11 +10,11 @@ import type {
 } from "../types/domain"
 
 export const applications: Application[] = [
-    { id: "aprimora", name: "Aprimora" },
-    { id: "google-classroom", name: "Google Classroom" },
-    { id: "arvore", name: "Árvore" },
-    { id: "plurall", name: "Plurall" },
-    { id: "teams", name: "Microsoft Teams" },
+    { id: "aprimora", name: "Aprimora", color: "indigo" },
+    { id: "google-classroom", name: "Google Classroom", color: "cyan" },
+    { id: "arvore", name: "Árvore", color: "teal" },
+    { id: "plurall", name: "Plurall", color: "grape" },
+    { id: "teams", name: "Microsoft Teams", color: "orange" },
 ]
 
 export const institutions: Institution[] = [
@@ -128,12 +129,14 @@ function createMembership(
         .slice(membershipIndex)
         .concat(institution.applications.slice(0, membershipIndex))
         .slice(0, appCount)
+    const eligibleApplications =
+        (studentIndex + membershipIndex * 3) % 13 === 0 ? [] : rotatedApplications
 
     return {
         institutionId: institution.id,
         className,
         enrolledAt: `202${3 + (studentIndex % 3)}-02-01T12:00:00.000Z`,
-        goals: rotatedApplications.map((application, applicationIndex) => {
+        goals: eligibleApplications.map((application, applicationIndex) => {
             const frequency = frequencies[(studentIndex + applicationIndex) % frequencies.length]
             const minimumAccesses = frequency === "MONTHLY" ? 8 : 2 + (applicationIndex % 2)
             const accessDelta = ((studentIndex + applicationIndex + membershipIndex) % 6) - 2
@@ -168,7 +171,10 @@ function createEducatorMembership(
     profile: "TEACHER" | "MANAGER",
 ): StudentMembership {
     const appCount = 1 + ((educatorIndex + membershipIndex) % institution.applications.length)
-    const eligibleApplications = institution.applications.slice(0, appCount)
+    const eligibleApplications =
+        (educatorIndex + membershipIndex * 5 + (profile === "MANAGER" ? 2 : 0)) % 11 === 0
+            ? []
+            : institution.applications.slice(0, appCount)
 
     return {
         institutionId: institution.id,
@@ -203,37 +209,99 @@ function createEducatorMembership(
     }
 }
 
+function createAccessEvents(
+    userId: string,
+    memberships: StudentMembership[],
+    userIndex: number,
+): AccessEvent[] {
+    const accessCountByApplication = new Map<string, number>()
+
+    memberships.forEach((membership) => {
+        membership.goals.forEach((goal) => {
+            accessCountByApplication.set(
+                goal.applicationId,
+                Math.max(accessCountByApplication.get(goal.applicationId) ?? 0, goal.accessCount),
+            )
+        })
+    })
+
+    return [...accessCountByApplication.entries()]
+        .flatMap(([applicationId, accessCount], applicationIndex) =>
+            Array.from({ length: accessCount }, (_, accessIndex) => {
+                const dayOffset =
+                    (userIndex * 11 + applicationIndex * 29 + accessIndex * 17) % 340
+                const accessedAt = new Date(
+                    Date.UTC(
+                        2026,
+                        8,
+                        22 - dayOffset,
+                        7 + ((userIndex + applicationIndex + accessIndex * 2) % 12),
+                        (userIndex * 7 + applicationIndex * 13 + accessIndex * 19) % 60,
+                    ),
+                ).toISOString()
+
+                return {
+                    id: `${userId}-${applicationId}-${accessIndex + 1}`,
+                    userId,
+                    applicationId,
+                    accessedAt,
+                }
+            }),
+        )
+        .sort((a, b) => b.accessedAt.localeCompare(a.accessedAt))
+}
+
 export const students: Student[] = studentNames.map((name, index) => {
+    const id = `student-${String(index + 1).padStart(2, "0")}`
+    const memberships = institutions.map((institution, membershipIndex) =>
+        createMembership(institution, index, membershipIndex),
+    )
+
     return {
-        id: `student-${String(index + 1).padStart(2, "0")}`,
+        id,
         name,
         email: `${normalizeEmail(name)}@aluno.edu.br`,
         profile: "STUDENT",
-        memberships: institutions.map((institution, membershipIndex) =>
-            createMembership(institution, index, membershipIndex),
-        ),
+        memberships,
+        accessEvents: createAccessEvents(id, memberships, index),
     }
 })
 
-export const teachers: Student[] = teacherNames.map((name, index) => ({
-    id: `teacher-${String(index + 1).padStart(2, "0")}`,
-    name,
-    email: `${normalizeEmail(name)}@professor.edu.br`,
-    profile: "TEACHER",
-    memberships: institutions.map((institution, membershipIndex) =>
+export const teachers: Student[] = teacherNames.map((name, index) => {
+    const id = `teacher-${String(index + 1).padStart(2, "0")}`
+    const memberships = institutions.map((institution, membershipIndex) =>
         createEducatorMembership(institution, index, membershipIndex, "TEACHER"),
-    ),
-}))
+    )
 
-export const managers: Student[] = managerNames.map((name, index) => ({
-    id: `manager-${String(index + 1).padStart(2, "0")}`,
-    name,
-    email: `${normalizeEmail(name)}@gestao.edu.br`,
-    profile: "MANAGER",
-    memberships: institutions.map((institution, membershipIndex) =>
+    return {
+        id,
+        name,
+        email: `${normalizeEmail(name)}@professor.edu.br`,
+        profile: "TEACHER",
+        memberships,
+        accessEvents: createAccessEvents(id, memberships, index + studentNames.length),
+    }
+})
+
+export const managers: Student[] = managerNames.map((name, index) => {
+    const id = `manager-${String(index + 1).padStart(2, "0")}`
+    const memberships = institutions.map((institution, membershipIndex) =>
         createEducatorMembership(institution, index + 2, membershipIndex, "MANAGER"),
-    ),
-}))
+    )
+
+    return {
+        id,
+        name,
+        email: `${normalizeEmail(name)}@gestao.edu.br`,
+        profile: "MANAGER",
+        memberships,
+        accessEvents: createAccessEvents(
+            id,
+            memberships,
+            index + studentNames.length + teacherNames.length,
+        ),
+    }
+})
 
 export const educators = [...teachers, ...managers]
 

@@ -25,6 +25,7 @@ import {
     CircleAlert,
     CircleCheck,
     CircleX,
+    BadgeAlert,
     Layers3,
     ListChecks,
     ShieldCheck,
@@ -341,6 +342,16 @@ export function InstitutionDashboardPage() {
                     icon={<ShieldCheck size={21} />}
                     color="grape"
                 />
+                {summary.usersWithoutGoal > 0 && (
+                    <MetricCard
+                        label="Usuários sem meta"
+                        value={numberFormatter.format(summary.usersWithoutGoal)}
+                        description="Sem meta aplicável neste recorte"
+                        icon={<BadgeAlert size={21} />}
+                        color="orange"
+                        to={`/institutions/${institutionId}/users?application=${applicationId}&status=NO_GOAL`}
+                    />
+                )}
             </SimpleGrid>
 
             <Grid gap="lg">
