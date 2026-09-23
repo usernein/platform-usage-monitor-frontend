@@ -1,36 +1,27 @@
 import {
   ActionIcon,
   Avatar,
-  Burger,
+  Button,
+  Divider,
   Flex,
   Group,
   Input,
+  Popover,
+  Stack,
+  Text,
+  UnstyledButton,
   useMantineColorScheme,
 } from "@mantine/core"
-import { useMediaQuery } from "@mantine/hooks"
-import { Moon, Search, Sun } from "lucide-react"
-import { useStore } from "../store/client/useStore"
+import { LogOut, Moon, Search, Sun } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 
-interface AppHeaderProps {
-  opened: boolean
-  toggle: () => void
-}
-
-export default function AppHeader({ opened, toggle }: AppHeaderProps) {
-  const { isNavbarCollapse, toggleNavbar } = useStore()
+export default function AppHeader() {
   const { colorScheme, toggleColorScheme } = useMantineColorScheme()
-
-  const smallScreen = useMediaQuery("(max-width: 48em)")
+  const navigate = useNavigate()
 
   return (
     <Group h="100%" px="lg" justify="space-between" wrap="nowrap">
       <Flex align="center" gap="md">
-        <Burger
-          opened={smallScreen ? opened : isNavbarCollapse}
-          onClick={smallScreen ? toggle : toggleNavbar}
-          size="sm"
-          aria-label="Toggle navigation"
-        />
         <Input
           leftSection={<Search size={17} aria-hidden="true" />}
           placeholder="Buscar"
@@ -49,9 +40,37 @@ export default function AppHeader({ opened, toggle }: AppHeaderProps) {
         >
           {colorScheme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
         </ActionIcon>
-        <Avatar radius="xl" color="indigo">
-          JG
-        </Avatar>
+        <Popover width={240} position="bottom-end" shadow="md" withArrow>
+          <Popover.Target>
+            <UnstyledButton aria-label="Abrir menu de João Gomes">
+              <Avatar radius="xl" color="indigo">
+                JG
+              </Avatar>
+            </UnstyledButton>
+          </Popover.Target>
+          <Popover.Dropdown>
+            <Stack gap="sm">
+              <div>
+                <Text fw={600} size="sm">
+                  João Gomes
+                </Text>
+                <Text c="dimmed" size="xs">
+                  joao.gomes@educacao.com.br
+                </Text>
+              </div>
+              <Divider />
+              <Button
+                variant="subtle"
+                color="red"
+                justify="flex-start"
+                leftSection={<LogOut size={17} />}
+                onClick={() => navigate("/")}
+              >
+                Sair
+              </Button>
+            </Stack>
+          </Popover.Dropdown>
+        </Popover>
       </Flex>
     </Group>
   )

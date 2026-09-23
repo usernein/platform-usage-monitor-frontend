@@ -1,4 +1,4 @@
-export type UserProfile = "STUDENT" | "TEACHER"
+export type UserProfile = "STUDENT" | "TEACHER" | "MANAGER"
 export type GoalFrequency = "DAILY" | "WEEKLY" | "MONTHLY"
 export type GoalStatus = "MET" | "AT_RISK" | "NOT_MET"
 
@@ -49,7 +49,7 @@ export interface ApplicationIndicator {
 }
 
 export interface ProfileIndicator {
-    profile: "Alunos" | "Professores"
+    profile: "Alunos" | "Educadores"
     adherence: number
 }
 
@@ -60,6 +60,18 @@ export interface InstitutionDashboard {
     evolution: EvolutionPoint[]
     applications: ApplicationIndicator[]
     profileAdoption: ProfileIndicator[]
+}
+
+export interface UsagePlan {
+    id: string
+    institutionId: string
+    applicationId: string
+    profile: UserProfile
+    frequency: GoalFrequency
+    minimumAccesses: number
+    classNames: string[]
+    userIds: string[]
+    updatedAt: string
 }
 
 export interface UserGoalRelation {

@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
 import {
-    Badge,
     Card,
     Group,
     Progress,
@@ -13,6 +12,7 @@ import {
 import { ArrowRight, Building2, GraduationCap, Layers3, Target } from "lucide-react"
 import { Link } from "react-router-dom"
 import { getInstitutions } from "../api/mockApi"
+import { AppBadge } from "../components/AppBadge"
 import { EmptyState, PageError, PageLoader } from "../components/PageState"
 import { ScoreRing } from "../components/ScoreRing"
 import { numberFormatter } from "../utils/usage"
@@ -45,6 +45,14 @@ export function HomePage() {
         institutionsQuery.data.reduce((total, institution) => total + institution.score, 0) /
             institutionsQuery.data.length,
     )
+    const portfolioGoalsMeeting = institutionsQuery.data.reduce(
+        (total, institution) => total + institution.goalsMeeting,
+        0,
+    )
+    const portfolioTotalGoals = institutionsQuery.data.reduce(
+        (total, institution) => total + institution.totalGoals,
+        0,
+    )
 
     return (
         <Stack gap="xl" className={classes.page}>
@@ -61,15 +69,21 @@ export function HomePage() {
                 </Stack>
 
                 <Group gap="lg" className={classes.portfolioScore} wrap="nowrap">
-                    <ScoreRing score={averageScore} size={88} thickness={8} />
+                    <ScoreRing
+                        score={averageScore}
+                        size={88}
+                        thickness={8}
+                        goalsMeeting={portfolioGoalsMeeting}
+                        totalGoals={portfolioTotalGoals}
+                    />
                     <div>
                         <Text size="sm" c="dimmed">
                             Score médio
                         </Text>
                         <Text fw={700}>Carteira de instituições</Text>
-                        <Badge variant="light" color="indigo" mt={6}>
+                        <AppBadge tone="info" mt={6}>
                             {institutionsQuery.data.length} instituições
-                        </Badge>
+                        </AppBadge>
                     </div>
                 </Group>
             </section>
@@ -101,7 +115,13 @@ export function HomePage() {
                                 <ThemeIcon size={42} radius="md" color="indigo" variant="light">
                                     <Building2 size={22} />
                                 </ThemeIcon>
-                                <ScoreRing score={institution.score} size={86} thickness={8} />
+                                <ScoreRing
+                                    score={institution.score}
+                                    size={86}
+                                    thickness={8}
+                                    goalsMeeting={institution.goalsMeeting}
+                                    totalGoals={institution.totalGoals}
+                                />
                             </Group>
 
                             <Title order={3} size="h4" mt="md" lineClamp={2} mih={50}>

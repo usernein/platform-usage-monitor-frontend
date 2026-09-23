@@ -4,10 +4,25 @@
 
 .filters {
     position: sticky;
-    top: rem(70);
+    top: rem(60);
     z-index: 5;
     background: light-dark(rgba(255, 255, 255, 0.96), rgba(37, 38, 43, 0.96));
     backdrop-filter: blur(rem(10));
+    transition: padding 160ms ease, border-radius 160ms ease, box-shadow 160ms ease;
+
+    &[data-stuck="true"] {
+        padding: rem(8) rem(12) !important;
+        border-radius: 0 0 var(--mantine-radius-md) var(--mantine-radius-md);
+        box-shadow: var(--mantine-shadow-sm);
+
+        :global(.mantine-InputWrapper-label) {
+            display: none;
+        }
+
+        .filterFields {
+            gap: rem(8);
+        }
+    }
 }
 
 .headerScore {

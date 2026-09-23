@@ -21,12 +21,6 @@ export function getScoreColor(score: number) {
     return "red"
 }
 
-export function getStatusColor(status: GoalStatus) {
-    if (status === "MET") return "teal"
-    if (status === "AT_RISK") return "yellow"
-    return "red"
-}
-
 export function getStatusLabel(status: GoalStatus) {
     if (status === "MET") return "Meta atingida"
     if (status === "AT_RISK") return "Em risco"
@@ -53,12 +47,12 @@ export function summarizeGoals(goals: UserGoalRelation[]) {
     return { accessCount, minimumAccesses, status, lastAccessAt }
 }
 
-export function getStudentGoals(
-    student: Student,
+export function getUserGoals(
+    user: Student,
     institutionId: string,
     applicationId: string,
 ) {
-    const membership = student.memberships.find(
+    const membership = user.memberships.find(
         ({ institutionId: currentInstitutionId }) =>
             currentInstitutionId === institutionId,
     )

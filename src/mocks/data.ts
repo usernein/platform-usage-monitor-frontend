@@ -5,6 +5,7 @@ import type {
     Institution,
     Student,
     StudentMembership,
+    UsagePlan,
 } from "../types/domain"
 
 export const applications: Application[] = [
@@ -85,6 +86,26 @@ const studentNames = [
     "Yuri Monteiro",
 ]
 
+const teacherNames = [
+    "Mariana Alves",
+    "Carlos Eduardo Pinto",
+    "Fernanda Lima",
+    "Ricardo Azevedo",
+    "Patrícia Moraes",
+    "André Vasconcelos",
+    "Luciana Castro",
+    "Gustavo Peixoto",
+]
+
+const managerNames = [
+    "Beatriz Tavares",
+    "Cláudio Rezende",
+    "Débora Freire",
+    "Eduardo Siqueira",
+    "Helena Prado",
+    "Marcelo Dantas",
+]
+
 const classNames = ["1º A", "1º B", "2º A", "2º B", "3º A"]
 const frequencies: GoalFrequency[] = ["WEEKLY", "WEEKLY", "MONTHLY"]
 
@@ -140,6 +161,48 @@ function createMembership(
     }
 }
 
+function createEducatorMembership(
+    institution: Institution,
+    educatorIndex: number,
+    membershipIndex: number,
+    profile: "TEACHER" | "MANAGER",
+): StudentMembership {
+    const appCount = 1 + ((educatorIndex + membershipIndex) % institution.applications.length)
+    const eligibleApplications = institution.applications.slice(0, appCount)
+
+    return {
+        institutionId: institution.id,
+        className: profile === "TEACHER" ? "Corpo docente" : "Gestão",
+        enrolledAt: `202${2 + (educatorIndex % 4)}-02-01T12:00:00.000Z`,
+        goals: eligibleApplications.map((application, applicationIndex) => {
+            const minimumAccesses = 6 + (applicationIndex % 3)
+            const accessDelta = ((educatorIndex + applicationIndex + membershipIndex) % 7) - 3
+            const accessCount = Math.max(0, minimumAccesses + accessDelta)
+            const progress = accessCount / minimumAccesses
+            const status: GoalStatus =
+                progress >= 1 ? "MET" : progress >= 0.5 ? "AT_RISK" : "NOT_MET"
+
+            return {
+                applicationId: application.id,
+                frequency: "MONTHLY",
+                minimumAccesses,
+                accessCount,
+                status,
+                targetAudience:
+                    (educatorIndex + applicationIndex) % 2 === 0
+                        ? `Perfil ${profile}`
+                        : profile === "TEACHER"
+                          ? "Professor específico"
+                          : "Gestor específico",
+                lastAccessAt:
+                    accessCount > 0
+                        ? `2026-09-${String(22 - ((educatorIndex + applicationIndex) % 10)).padStart(2, "0")}T${String(8 + (educatorIndex % 8)).padStart(2, "0")}:15:00.000Z`
+                        : null,
+            }
+        }),
+    }
+}
+
 export const students: Student[] = studentNames.map((name, index) => {
     return {
         id: `student-${String(index + 1).padStart(2, "0")}`,
@@ -151,3 +214,60 @@ export const students: Student[] = studentNames.map((name, index) => {
         ),
     }
 })
+
+export const teachers: Student[] = teacherNames.map((name, index) => ({
+    id: `teacher-${String(index + 1).padStart(2, "0")}`,
+    name,
+    email: `${normalizeEmail(name)}@professor.edu.br`,
+    profile: "TEACHER",
+    memberships: institutions.map((institution, membershipIndex) =>
+        createEducatorMembership(institution, index, membershipIndex, "TEACHER"),
+    ),
+}))
+
+export const managers: Student[] = managerNames.map((name, index) => ({
+    id: `manager-${String(index + 1).padStart(2, "0")}`,
+    name,
+    email: `${normalizeEmail(name)}@gestao.edu.br`,
+    profile: "MANAGER",
+    memberships: institutions.map((institution, membershipIndex) =>
+        createEducatorMembership(institution, index + 2, membershipIndex, "MANAGER"),
+    ),
+}))
+
+export const educators = [...teachers, ...managers]
+
+export const usagePlans: UsagePlan[] = institutions.flatMap(
+    (institution, institutionIndex) =>
+        institution.applications.slice(0, 3).map((application, applicationIndex) => ({
+            id: `${institution.id}-${application.id}-${applicationIndex + 1}`,
+            institutionId: institution.id,
+            applicationId: application.id,
+            profile:
+                applicationIndex === 0
+                    ? "STUDENT"
+                    : applicationIndex === 1
+                      ? "TEACHER"
+                      : "MANAGER",
+            frequency: applicationIndex === 0 ? "WEEKLY" : "MONTHLY",
+            minimumAccesses: applicationIndex === 0 ? 2 : 8,
+            classNames:
+                applicationIndex === 0
+                    ? [classNames[institutionIndex % classNames.length]]
+                    : [],
+            userIds:
+                applicationIndex === 0 && institutionIndex % 2 === 0
+                    ? students
+                          .slice(institutionIndex, institutionIndex + 2)
+                          .map(({ id }) => id)
+                    : educators
+                          .filter(
+                              ({ profile }) =>
+                                  profile ===
+                                  (applicationIndex === 1 ? "TEACHER" : "MANAGER"),
+                          )
+                          .slice(institutionIndex, institutionIndex + 2)
+                          .map(({ id }) => id),
+            updatedAt: "2026-09-20T14:00:00.000Z",
+        })),
+)

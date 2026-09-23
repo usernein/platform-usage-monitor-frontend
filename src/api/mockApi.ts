@@ -1,10 +1,11 @@
-import { applications, institutions, students } from "../mocks/data"
+import { applications, educators, institutions, students, usagePlans } from "../mocks/data"
 import type {
     ApplicationIndicator,
     DashboardFilters,
     Institution,
     InstitutionDashboard,
     Student,
+    UsagePlan,
 } from "../types/domain"
 
 const simulatedLatency = 350
@@ -121,7 +122,7 @@ export async function getInstitutionDashboard(
             : allApplicationIndicators.sort((a, b) => b.adherence - a.adherence),
         profileAdoption: [
             { profile: "Alunos", adherence: Math.max(0, adherenceRate - 2) },
-            { profile: "Professores", adherence: Math.min(100, adherenceRate + 5) },
+            { profile: "Educadores", adherence: Math.min(100, adherenceRate + 5) },
         ],
     }
 }
@@ -143,13 +144,58 @@ export async function getInstitutionStudents(
     )
 }
 
-export async function getStudent(studentId: string): Promise<Student> {
+export async function getInstitutionEducators(
+    institutionId: string,
+    applicationId = "all",
+): Promise<Student[]> {
     await wait()
-    const student = students.find(({ id }) => id === studentId)
-    if (!student) {
-        throw new Error("Aluno não encontrado")
+    findInstitution(institutionId)
+
+    return educators.filter((educator) =>
+        educator.memberships.some(
+            (membership) =>
+                membership.institutionId === institutionId &&
+                (applicationId === "all" ||
+                    membership.goals.some((goal) => goal.applicationId === applicationId)),
+        ),
+    )
+}
+
+export async function getInstitutionUsers(
+    institutionId: string,
+    applicationId = "all",
+): Promise<Student[]> {
+    const [institutionStudents, institutionEducators] = await Promise.all([
+        getInstitutionStudents(institutionId, applicationId),
+        getInstitutionEducators(institutionId, applicationId),
+    ])
+    return [...institutionStudents, ...institutionEducators].sort((a, b) =>
+        a.name.localeCompare(b.name, "pt-BR"),
+    )
+}
+
+export async function getUser(userId: string): Promise<Student> {
+    await wait()
+    const user = [...students, ...educators].find(({ id }) => id === userId)
+    if (!user) {
+        throw new Error("Usuário não encontrado")
     }
-    return student
+    return user
+}
+
+export async function getInstitutionUsagePlans(
+    institutionId: string,
+): Promise<UsagePlan[]> {
+    await wait()
+    findInstitution(institutionId)
+
+    return usagePlans
+        .filter((plan) => plan.institutionId === institutionId)
+        .map((plan) => ({
+            ...plan,
+            classNames: [...plan.classNames],
+            userIds: [...plan.userIds],
+        }))
 }
 
 export function getApplicationName(applicationId: string) {

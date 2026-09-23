@@ -1,0 +1,11 @@
+.root {
+    padding: var(--mantine-spacing-md) var(--mantine-spacing-lg);
+    border-top: rem(1) solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+}
+
+@media (max-width: 48em) {
+    .root {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}

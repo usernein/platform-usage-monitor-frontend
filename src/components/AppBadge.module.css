@@ -1,0 +1,18 @@
+.root {
+    width: max-content;
+    min-width: max-content;
+    max-width: none;
+    flex-shrink: 0;
+    overflow: visible;
+
+    &[data-clickable="true"] {
+        cursor: pointer;
+        border: 0;
+    }
+}
+
+.label {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: nowrap;
+}

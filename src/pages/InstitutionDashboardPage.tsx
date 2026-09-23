@@ -1,4 +1,4 @@
-import { lazy, useEffect, useState } from "react"
+import { lazy, useEffect, useRef, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { AreaChart, BarChart } from "@mantine/charts"
 import { useMediaQuery } from "@mantine/hooks"
@@ -6,7 +6,6 @@ import dayjs from "dayjs"
 import "dayjs/locale/pt-br"
 import {
     Anchor,
-    Badge,
     Button,
     Grid,
     Group,
@@ -27,12 +26,14 @@ import {
     CircleCheck,
     CircleX,
     Layers3,
+    ListChecks,
     ShieldCheck,
     Target,
     Users,
 } from "lucide-react"
 import { Link, useNavigate, useParams } from "react-router-dom"
 import { getInstitutionDashboard, getInstitutions } from "../api/mockApi"
+import { AppBadge } from "../components/AppBadge"
 import { MetricCard } from "../components/MetricCard"
 import { EmptyState, PageError, PageLoader } from "../components/PageState"
 import { ScoreRing } from "../components/ScoreRing"
@@ -82,6 +83,8 @@ export function InstitutionDashboardPage() {
     const [dateRange, setDateRange] = useState<DateRange>(defaultDateRange)
     const [appliedDateRange, setAppliedDateRange] =
         useState<CompleteDateRange>(defaultDateRange)
+    const [filtersStuck, setFiltersStuck] = useState(false)
+    const filtersRef = useRef<HTMLDivElement>(null)
 
     const institutionsQuery = useQuery({
         queryKey: ["institutions"],
@@ -94,6 +97,26 @@ export function InstitutionDashboardPage() {
     useEffect(() => {
         setApplicationId("all")
     }, [institutionId])
+
+    useEffect(() => {
+        const filters = filtersRef.current
+        if (!filters || smallScreen) {
+            setFiltersStuck(false)
+            return
+        }
+
+        const updateStickyState = () => {
+            setFiltersStuck(filters.getBoundingClientRect().top <= 60 && window.scrollY > 0)
+        }
+        updateStickyState()
+        window.addEventListener("scroll", updateStickyState, { passive: true })
+        window.addEventListener("resize", updateStickyState)
+
+        return () => {
+            window.removeEventListener("scroll", updateStickyState)
+            window.removeEventListener("resize", updateStickyState)
+        }
+    }, [smallScreen])
 
     const dashboardQuery = useQuery({
         queryKey: [
@@ -157,9 +180,9 @@ export function InstitutionDashboardPage() {
                     </Anchor>
                     <Group gap="md" mt="xs" align="center">
                         <Title order={1}>{dashboard.institution.name}</Title>
-                        <Badge color="teal" variant="light">
+                        <AppBadge tone="success">
                             Dados atualizados
-                        </Badge>
+                        </AppBadge>
                     </Group>
                     <Text c="dimmed" mt={4}>
                         Indicadores de adesão e utilização das aplicações educacionais.
@@ -167,7 +190,15 @@ export function InstitutionDashboardPage() {
                 </div>
 
                 <Group wrap="nowrap" className={classes.headerScore}>
-                    <ScoreRing score={dashboard.institution.score} size={82} thickness={8} />
+                    <ScoreRing
+                        score={dashboard.institution.score}
+                        size={82}
+                        thickness={8}
+                        goalsMeeting={dashboard.institution.goalsMeeting}
+                        totalGoals={dashboard.institution.totalGoals}
+                        activeRate={summary.activeUserRate}
+                        trend={summary.adherenceTrend}
+                    />
                     <div>
                         <Text size="xs" c="dimmed">
                             Score geral
@@ -177,8 +208,15 @@ export function InstitutionDashboardPage() {
                 </Group>
             </Group>
 
-            <Paper withBorder radius="md" p="md" className={classes.filters}>
-                <Group align="flex-end">
+            <Paper
+                ref={filtersRef}
+                withBorder
+                radius="md"
+                p="md"
+                className={classes.filters}
+                data-stuck={filtersStuck || undefined}
+            >
+                <Group align="flex-end" className={classes.filterFields}>
                     <Select
                         label="Instituição"
                         data={institutionsQuery.data.map(({ id, name }) => ({
@@ -223,14 +261,23 @@ export function InstitutionDashboardPage() {
                         dropdownType={smallScreen ? "modal" : "popover"}
                         w={{ base: "100%", sm: 270 }}
                     />
-                    <Button
-                        component={Link}
-                        to={`/institutions/${institutionId}/users?application=${applicationId}`}
-                        leftSection={<Users size={17} />}
-                        ml={{ sm: "auto" }}
-                    >
-                        Ver alunos
-                    </Button>
+                    <Group ml={{ sm: "auto" }} gap="sm">
+                        <Button
+                            component={Link}
+                            to={`/institutions/${institutionId}/usage-plans`}
+                            leftSection={<ListChecks size={17} />}
+                            variant="light"
+                        >
+                            Gerenciar metas
+                        </Button>
+                        <Button
+                            component={Link}
+                            to={`/institutions/${institutionId}/users?application=${applicationId}`}
+                            leftSection={<Users size={17} />}
+                        >
+                            Ver usuários
+                        </Button>
+                    </Group>
                 </Group>
             </Paper>
 
@@ -247,6 +294,7 @@ export function InstitutionDashboardPage() {
                     description="Usuários dentro do esperado"
                     icon={<CircleCheck size={21} />}
                     color="teal"
+                    to={`/institutions/${institutionId}/users?application=${applicationId}&status=MET`}
                 />
                 <MetricCard
                     label="Não atingiram"
@@ -254,6 +302,7 @@ export function InstitutionDashboardPage() {
                     description="Precisam de acompanhamento"
                     icon={<CircleX size={21} />}
                     color="red"
+                    to={`/institutions/${institutionId}/users?application=${applicationId}&status=BELOW_GOAL`}
                 />
                 <MetricCard
                     label="Adesão"
@@ -268,6 +317,7 @@ export function InstitutionDashboardPage() {
                     description="Com ao menos um acesso"
                     icon={<Activity size={21} />}
                     color="cyan"
+                    to={`/institutions/${institutionId}/users?application=${applicationId}&status=ACTIVE`}
                 />
                 <MetricCard
                     label="Tendência de adesão"
@@ -282,6 +332,7 @@ export function InstitutionDashboardPage() {
                     description="Próximos do fim do período"
                     icon={<CircleAlert size={21} />}
                     color="yellow"
+                    to={`/institutions/${institutionId}/users?application=${applicationId}&status=AT_RISK`}
                 />
                 <MetricCard
                     label="Cobertura de metas"
@@ -304,9 +355,9 @@ export function InstitutionDashboardPage() {
                                     Volume de acessos ao longo do período selecionado
                                 </Text>
                             </div>
-                            <Badge variant="dot" color="indigo">
+                            <AppBadge tone="info" appearance="dot">
                                 Acessos
-                            </Badge>
+                            </AppBadge>
                         </Group>
                         <AreaChart
                             h={310}
@@ -326,7 +377,7 @@ export function InstitutionDashboardPage() {
                             Adoção por perfil
                         </Title>
                         <Text c="dimmed" size="sm" mb="xl">
-                            Comparação entre alunos e professores
+                            Comparação entre alunos e educadores
                         </Text>
                         <Stack gap="xl">
                             {dashboard.profileAdoption.map(({ profile, adherence }) => (

@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query"
 import {
     Anchor,
     Avatar,
-    Badge,
     Divider,
     Group,
     Paper,
@@ -15,8 +14,10 @@ import {
 } from "@mantine/core"
 import { ArrowLeft, Building2, CalendarDays, Mail, School, Target } from "lucide-react"
 import { Link, useParams, useSearchParams } from "react-router-dom"
-import { getApplicationName, getInstitutions, getStudent } from "../api/mockApi"
+import { getApplicationName, getInstitutions, getUser } from "../api/mockApi"
+import { AppBadge } from "../components/AppBadge"
 import { GoalStatusBadge } from "../components/GoalStatusBadge"
+import { ProfileBadge } from "../components/ProfileBadge"
 import { PageError, PageLoader } from "../components/PageState"
 import { formatDate } from "../utils/usage"
 import classes from "./styles/UserDetailPage.module.css"
@@ -32,9 +33,9 @@ export function UserDetailPage() {
     const [searchParams] = useSearchParams()
     const sourceInstitutionId = searchParams.get("institution")
 
-    const studentQuery = useQuery({
-        queryKey: ["student", userId],
-        queryFn: () => getStudent(userId),
+    const userQuery = useQuery({
+        queryKey: ["user", userId],
+        queryFn: () => getUser(userId),
         enabled: Boolean(userId),
     })
     const institutionsQuery = useQuery({
@@ -42,34 +43,41 @@ export function UserDetailPage() {
         queryFn: getInstitutions,
     })
 
-    if (studentQuery.isPending || institutionsQuery.isPending) {
-        return <PageLoader label="Carregando detalhes do aluno..." />
+    if (userQuery.isPending || institutionsQuery.isPending) {
+        return <PageLoader label="Carregando detalhes do usuário..." />
     }
 
-    if (studentQuery.isError || institutionsQuery.isError) {
-        const error = studentQuery.error ?? institutionsQuery.error
+    if (userQuery.isError || institutionsQuery.isError) {
+        const error = userQuery.error ?? institutionsQuery.error
         return (
             <PageError
                 message={error?.message}
                 onRetry={() => {
-                    void studentQuery.refetch()
+                    void userQuery.refetch()
                     void institutionsQuery.refetch()
                 }}
             />
         )
     }
 
-    const student = studentQuery.data
-    const initials = student.name
+    const user = userQuery.data
+    const isEducator = user.profile !== "STUDENT"
+    const profileLabel =
+        user.profile === "STUDENT"
+            ? "Aluno"
+            : user.profile === "TEACHER"
+              ? "Professor"
+              : "Gestor"
+    const initials = user.name
         .split(" ")
         .slice(0, 2)
         .map((part) => part[0])
         .join("")
-    const totalGoals = student.memberships.reduce(
+    const totalGoals = user.memberships.reduce(
         (total, membership) => total + membership.goals.length,
         0,
     )
-    const goalsMet = student.memberships.reduce(
+    const goalsMet = user.memberships.reduce(
         (total, membership) =>
             total + membership.goals.filter(({ status }) => status === "MET").length,
         0,
@@ -83,7 +91,7 @@ export function UserDetailPage() {
         <Stack gap="xl" className={classes.page}>
             <Anchor component={Link} to={backTo} size="sm" c="dimmed">
                 <Group gap={6}>
-                    <ArrowLeft size={15} /> Voltar para alunos
+                    <ArrowLeft size={15} /> Voltar para usuários
                 </Group>
             </Anchor>
 
@@ -95,19 +103,17 @@ export function UserDetailPage() {
                         </Avatar>
                         <div>
                             <Group gap="sm">
-                                <Title order={1}>{student.name}</Title>
-                                <Badge color="indigo" variant="light">
-                                    Aluno
-                                </Badge>
+                                <Title order={1}>{user.name}</Title>
+                                <ProfileBadge profile={user.profile} />
                             </Group>
                             <Group gap={6} mt={6} c="dimmed">
                                 <Mail size={16} />
-                                <Text size="sm">{student.email}</Text>
+                                <Text size="sm">{user.email}</Text>
                             </Group>
                             <Group gap={6} mt={4} c="dimmed">
                                 <Building2 size={16} />
                                 <Text size="sm">
-                                    {student.memberships.length} instituição(ões)
+                                    {user.memberships.length} instituição(ões)
                                 </Text>
                             </Group>
                         </div>
@@ -135,12 +141,14 @@ export function UserDetailPage() {
                     Instituições e metas aplicáveis
                 </Title>
                 <Text c="dimmed" size="sm">
-                    Uma meta só aparece quando o aluno pertence ao perfil ou à turma elegível.
+                    {isEducator
+                        ? `Uma meta só aparece quando o ${profileLabel.toLowerCase()} pertence ao perfil ou foi incluído individualmente.`
+                        : "Uma meta só aparece quando o aluno pertence ao perfil ou à turma elegível."}
                 </Text>
             </div>
 
             <Stack gap="lg">
-                {student.memberships.map((membership) => {
+                {user.memberships.map((membership) => {
                     const institution = institutionsQuery.data.find(
                         ({ id }) => id === membership.institutionId,
                     )
@@ -157,14 +165,15 @@ export function UserDetailPage() {
                                             {institution?.name ?? membership.institutionId}
                                         </Title>
                                         <Text size="sm" c="dimmed">
-                                            Turma {membership.className} · matriculado desde{" "}
-                                            {formatDate(membership.enrolledAt)}
+                                            {isEducator
+                                                ? `${user.profile === "TEACHER" ? "Corpo docente" : "Gestão"} · vínculo desde ${formatDate(membership.enrolledAt)}`
+                                                : `Turma ${membership.className} · matriculado desde ${formatDate(membership.enrolledAt)}`}
                                         </Text>
                                     </div>
                                 </Group>
-                                <Badge variant="outline">
+                                <AppBadge appearance="outline">
                                     {membership.goals.length} metas aplicáveis
-                                </Badge>
+                                </AppBadge>
                             </Group>
 
                             <Divider mb="lg" />

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react"
 import { Group, Paper, Stack, Text, ThemeIcon } from "@mantine/core"
+import { Link } from "react-router-dom"
 import classes from "./styles/MetricCard.module.css"
 
 interface MetricCardProps {
@@ -8,6 +9,7 @@ interface MetricCardProps {
     description: string
     icon: ReactNode
     color?: string
+    to?: string
 }
 
 export function MetricCard({
@@ -16,9 +18,10 @@ export function MetricCard({
     description,
     icon,
     color = "indigo",
+    to,
 }: MetricCardProps) {
-    return (
-        <Paper className={classes.card} withBorder radius="md" p="lg">
+    const content = (
+        <>
             <Group justify="space-between" align="flex-start" wrap="nowrap">
                 <Stack gap={3}>
                     <Text c="dimmed" size="sm" fw={500}>
@@ -35,6 +38,28 @@ export function MetricCard({
                     {icon}
                 </ThemeIcon>
             </Group>
+        </>
+    )
+
+    if (to) {
+        return (
+            <Paper
+                component={Link}
+                to={to}
+                className={classes.card}
+                withBorder
+                radius="md"
+                p="lg"
+                data-clickable
+            >
+                {content}
+            </Paper>
+        )
+    }
+
+    return (
+        <Paper className={classes.card} withBorder radius="md" p="lg">
+            {content}
         </Paper>
     )
 }

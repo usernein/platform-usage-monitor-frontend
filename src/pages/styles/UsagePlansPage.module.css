@@ -1,0 +1,39 @@
+.page {
+    animation: plans-enter 240ms ease-out;
+}
+
+.explanation {
+    background: light-dark(var(--mantine-color-indigo-0), rgba(76, 80, 190, 0.12));
+    border-color: light-dark(var(--mantine-color-indigo-2), var(--mantine-color-indigo-8));
+}
+
+.planCard {
+    background: light-dark(var(--mantine-color-white), var(--mantine-color-dark-6));
+    transition:
+        transform 160ms ease,
+        box-shadow 160ms ease,
+        border-color 160ms ease;
+
+    &:hover {
+        transform: translateY(rem(-2));
+        box-shadow: var(--mantine-shadow-sm);
+        border-color: light-dark(var(--mantine-color-indigo-2), var(--mantine-color-indigo-7));
+    }
+}
+
+@media (max-width: 48em) {
+    .page > :first-child {
+        align-items: flex-start;
+    }
+}
+
+@keyframes plans-enter {
+    from {
+        opacity: 0;
+        transform: translateY(rem(6));
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

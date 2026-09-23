@@ -7,7 +7,6 @@ import { MantineProvider } from "@mantine/core"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 import App from "./layouts/App"
-import { PlaceholderPage } from "./pages/PlaceholderPage"
 import { theme } from "./theme"
 
 const HomePage = lazy(() =>
@@ -21,6 +20,11 @@ const InstitutionDashboardPage = lazy(() =>
 const InstitutionUsersPage = lazy(() =>
     import("./pages/InstitutionUsersPage").then((module) => ({
         default: module.InstitutionUsersPage,
+    })),
+)
+const InstitutionUsagePlansPage = lazy(() =>
+    import("./pages/InstitutionUsagePlansPage").then((module) => ({
+        default: module.InstitutionUsagePlansPage,
     })),
 )
 const UserDetailPage = lazy(() =>
@@ -54,16 +58,11 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
                                 path="/institutions/:institutionId/users"
                                 element={<InstitutionUsersPage />}
                             />
-                            <Route path="/users/:userId" element={<UserDetailPage />} />
                             <Route
-                                path="/usage-plans"
-                                element={
-                                    <PlaceholderPage
-                                        title="Planos de uso"
-                                        description="Configure metas mínimas por instituição, aplicação e perfil."
-                                    />
-                                }
+                                path="/institutions/:institutionId/usage-plans"
+                                element={<InstitutionUsagePlansPage />}
                             />
+                            <Route path="/users/:userId" element={<UserDetailPage />} />
                             <Route path="*" element={<Navigate to="/" replace />} />
                         </Routes>
                     </App>
