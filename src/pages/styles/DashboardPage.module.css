@@ -6,7 +6,7 @@
     position: sticky;
     top: rem(60);
     z-index: 5;
-    background: light-dark(rgba(255, 255, 255, 0.96), rgba(37, 38, 43, 0.96));
+    background: light-dark(rgba(255, 255, 255, 0.96), var(--mantine-color-dark-6));
     backdrop-filter: blur(rem(10));
     transition: padding 160ms ease, border-radius 160ms ease, box-shadow 160ms ease;
 

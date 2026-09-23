@@ -14,6 +14,7 @@ import {
 } from "@mantine/core"
 import { LogOut, Moon, Search, Sun } from "lucide-react"
 import { useNavigate } from "react-router-dom"
+import {Title} from "@mantine/core";
 
 export default function AppHeader() {
   const { colorScheme, toggleColorScheme } = useMantineColorScheme()
@@ -22,12 +23,9 @@ export default function AppHeader() {
   return (
     <Group h="100%" px="lg" justify="space-between" wrap="nowrap">
       <Flex align="center" gap="md">
-        <Input
-          leftSection={<Search size={17} aria-hidden="true" />}
-          placeholder="Buscar"
-          w={{ base: 150, sm: 300 }}
-          aria-label="Buscar"
-        />
+        <Title size={"h3"}>
+          Monitoramento de acessos
+        </Title>
       </Flex>
 
       <Flex align="center" gap="sm">

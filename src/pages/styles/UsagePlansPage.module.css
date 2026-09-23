@@ -17,7 +17,10 @@
     &:hover {
         transform: translateY(rem(-2));
         box-shadow: var(--mantine-shadow-sm);
-        border-color: light-dark(var(--mantine-color-indigo-2), var(--mantine-color-indigo-7));
+
+        transition: background-color 150ms ease;
+        cursor: pointer;
+        background: light-dark(var(--mantine-color-white), var(--mantine-color-dark-5));
     }
 }
 

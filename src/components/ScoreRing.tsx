@@ -24,7 +24,7 @@ export function ScoreRing({
     return (
         <HoverCard width={285} shadow="md" position="bottom" openDelay={180} withinPortal>
             <HoverCard.Target>
-                <Box display="inline-flex" style={{ cursor: "help" }}>
+                <Box display="inline-flex">
                     <RingProgress
                         size={size}
                         thickness={thickness}

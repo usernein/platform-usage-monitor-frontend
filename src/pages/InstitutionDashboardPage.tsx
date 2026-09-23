@@ -143,7 +143,7 @@ export function InstitutionDashboardPage() {
     }
 
     if (institutionsQuery.isPending || dashboardQuery.isPending) {
-        return <PageLoader label="Montando o dashboard..." />
+        return <PageLoader label="Organizando informações..." />
     }
 
     if (institutionsQuery.isError || dashboardQuery.isError) {
@@ -203,7 +203,7 @@ export function InstitutionDashboardPage() {
                         <Text size="xs" c="dimmed">
                             Score geral
                         </Text>
-                        <Text fw={700}>Saúde da instituição</Text>
+                        <Text fw={700}>Desempenho em metas de acesso</Text>
                     </div>
                 </Group>
             </Group>
@@ -391,7 +391,6 @@ export function InstitutionDashboardPage() {
                                         size="lg"
                                         radius="xl"
                                         color={profile === "Alunos" ? "indigo" : "cyan"}
-                                        animated
                                     />
                                 </div>
                             ))}

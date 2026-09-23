@@ -56,38 +56,6 @@ export function HomePage() {
 
     return (
         <Stack gap="xl" className={classes.page}>
-            <section className={classes.hero}>
-                <Stack gap={6}>
-                    <Text c="indigo" fw={700} size="sm">
-                        VISÃO GERAL
-                    </Text>
-                    <Title order={1}>Olá, João Gomes</Title>
-                    <Text c="dimmed" maw={680}>
-                        Acompanhe a saúde de uso das instituições que você gerencia. O score
-                        resume o desempenho de todas as metas configuradas por aplicação.
-                    </Text>
-                </Stack>
-
-                <Group gap="lg" className={classes.portfolioScore} wrap="nowrap">
-                    <ScoreRing
-                        score={averageScore}
-                        size={88}
-                        thickness={8}
-                        goalsMeeting={portfolioGoalsMeeting}
-                        totalGoals={portfolioTotalGoals}
-                    />
-                    <div>
-                        <Text size="sm" c="dimmed">
-                            Score médio
-                        </Text>
-                        <Text fw={700}>Carteira de instituições</Text>
-                        <AppBadge tone="info" mt={6}>
-                            {institutionsQuery.data.length} instituições
-                        </AppBadge>
-                    </div>
-                </Group>
-            </section>
-
             <div>
                 <Group justify="space-between" mb="md">
                     <div>
@@ -111,10 +79,15 @@ export function HomePage() {
                             radius="lg"
                             p="lg"
                         >
-                            <Group justify="space-between" align="flex-start" wrap="nowrap">
+                            <Group justify="space-between" align="center" wrap="nowrap">
                                 <ThemeIcon size={42} radius="md" color="indigo" variant="light">
                                     <Building2 size={22} />
                                 </ThemeIcon>
+
+                                <Title order={3} size="h3" lineClamp={2} w={"100%"}>
+                                    {institution.name}
+                                </Title>
+
                                 <ScoreRing
                                     score={institution.score}
                                     size={86}
@@ -124,10 +97,8 @@ export function HomePage() {
                                 />
                             </Group>
 
-                            <Title order={3} size="h4" mt="md" lineClamp={2} mih={50}>
-                                {institution.name}
-                            </Title>
-                            <Text size="xs" c="dimmed" mt={4}>
+
+                            <Text size="sm" c="dimmed">
                                 Score geral de metas
                             </Text>
 
@@ -136,34 +107,34 @@ export function HomePage() {
                                 color={institution.score >= 85 ? "teal" : institution.score >= 70 ? "indigo" : "yellow"}
                                 radius="xl"
                                 size="sm"
-                                mt="md"
+                                mt="4"
                             />
 
                             <SimpleGrid cols={3} spacing="xs" mt="lg">
-                                <Stack gap={2} align="center">
-                                    <GraduationCap size={17} color="var(--mantine-color-gray-6)" />
-                                    <Text fw={700} size="sm">
+                                <Stack gap={0} align="center">
+                                    <GraduationCap size={20} color="var(--mantine-color-gray-6)" />
+                                    <Text fw={700} size="sm" mt={5}>
                                         {numberFormatter.format(institution.eligibleUsers)}
                                     </Text>
-                                    <Text size="xs" c="dimmed">
+                                    <Text size="sm" c="dimmed" lh={"normal"}>
                                         usuários
                                     </Text>
                                 </Stack>
-                                <Stack gap={2} align="center">
-                                    <Layers3 size={17} color="var(--mantine-color-gray-6)" />
-                                    <Text fw={700} size="sm">
+                                <Stack gap={0} align="center">
+                                    <Layers3 size={20} color="var(--mantine-color-gray-6)" />
+                                    <Text fw={700} size="sm" mt={5}>
                                         {institution.applications.length}
                                     </Text>
-                                    <Text size="xs" c="dimmed">
+                                    <Text size="sm" c="dimmed" lh={"normal"}>
                                         aplicações
                                     </Text>
                                 </Stack>
-                                <Stack gap={2} align="center">
-                                    <Target size={17} color="var(--mantine-color-gray-6)" />
-                                    <Text fw={700} size="sm">
+                                <Stack gap={0} align="center">
+                                    <Target size={20} color="var(--mantine-color-gray-6)" />
+                                    <Text fw={700} size="sm" mt={5}>
                                         {institution.goalsMeeting}/{institution.totalGoals}
                                     </Text>
-                                    <Text size="xs" c="dimmed">
+                                    <Text size="sm" c="dimmed" lh={"normal"}>
                                         metas
                                     </Text>
                                 </Stack>
@@ -171,7 +142,7 @@ export function HomePage() {
 
                             <Group className={classes.openDashboard} justify="space-between" mt="lg">
                                 <Text size="sm" fw={600} c="indigo">
-                                    Ver dashboard
+                                    Abrir visão geral
                                 </Text>
                                 <ArrowRight size={18} />
                             </Group>
