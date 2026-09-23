@@ -1,0 +1,19 @@
+.page {
+    animation: users-enter 240ms ease-out;
+}
+
+.tableCard {
+    overflow: hidden;
+    background: light-dark(var(--mantine-color-white), var(--mantine-color-dark-6));
+}
+
+@keyframes users-enter {
+    from {
+        opacity: 0;
+        transform: translateY(rem(6));
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

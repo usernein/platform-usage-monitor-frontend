@@ -1,0 +1,39 @@
+.page {
+    animation: dashboard-enter 260ms ease-out;
+}
+
+.filters {
+    position: sticky;
+    top: rem(70);
+    z-index: 5;
+    background: light-dark(rgba(255, 255, 255, 0.96), rgba(37, 38, 43, 0.96));
+    backdrop-filter: blur(rem(10));
+}
+
+.headerScore {
+    padding: rem(8) rem(16) rem(8) rem(8);
+    border: rem(1) solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-4));
+    border-radius: var(--mantine-radius-lg);
+    background: light-dark(var(--mantine-color-white), var(--mantine-color-dark-6));
+}
+
+@media (max-width: 48em) {
+    .headerScore {
+        width: 100%;
+    }
+
+    .filters {
+        position: static;
+    }
+}
+
+@keyframes dashboard-enter {
+    from {
+        opacity: 0;
+        transform: translateY(rem(8));
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

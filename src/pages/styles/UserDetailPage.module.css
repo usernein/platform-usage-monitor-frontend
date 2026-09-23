@@ -1,0 +1,39 @@
+.page {
+    animation: detail-enter 240ms ease-out;
+}
+
+.summary {
+    width: rem(280);
+    padding: var(--mantine-spacing-md);
+    border-radius: var(--mantine-radius-md);
+    background: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-5));
+}
+
+.goalCard {
+    transition:
+        transform 160ms ease,
+        box-shadow 160ms ease;
+
+    &:hover {
+        transform: translateY(rem(-2));
+        box-shadow: var(--mantine-shadow-sm);
+    }
+}
+
+@media (max-width: 48em) {
+    .summary {
+        width: 100%;
+        margin-top: var(--mantine-spacing-md);
+    }
+}
+
+@keyframes detail-enter {
+    from {
+        opacity: 0;
+        transform: translateY(rem(6));
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
